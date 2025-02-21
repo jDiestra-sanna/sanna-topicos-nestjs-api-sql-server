@@ -1,0 +1,61 @@
+table files {
+  id int [pk]
+  path varchar
+}
+
+table users {
+  id int [pk]
+  name varchar
+}
+
+table user_assignments {
+  id int [pk]
+  user_id int
+  campus_id int
+}
+
+table user_files {
+  id int [pk]
+  user_id int
+  file_id int
+}
+
+table groups {
+  id int [pk]
+  name varchar
+}
+
+table clients {
+  id int [pk]
+  group_id int
+}
+
+table campus {
+  id int [pk]
+  client_id int
+}
+
+table medical_calendars {
+  id int [pk]
+  user_id int
+  campus_id int
+  month tinyint
+  year tinyint
+}
+
+table medical_calendar_days {
+  id int [pk]
+  medical_calendar_id int
+  day date
+}
+
+
+Ref: medical_calendar_days.medical_calendar_id > medical_calendars.id
+Ref: medical_calendars.user_id > users.id
+Ref: medical_calendars.campus_id > campus.id
+Ref: campus.client_id > clients.id
+Ref: clients.group_id > groups.id
+Ref: user_files.user_id > users.id
+Ref: user_files.file_id > files.id
+Ref: user_assignments.user_id > users.id
+Ref: user_assignments.campus_id > campus.id
