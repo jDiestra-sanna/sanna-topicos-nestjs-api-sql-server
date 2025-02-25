@@ -12,14 +12,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.enableCors({
-    origin: (origin, callback) => {
-        const allowedOrigins = ['https://200.48.199.90:8202', 'https://10.6.26.16:8202'];
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: 'https://topicare.doctormas.com.pe',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: 'Content-Disposition'
@@ -44,9 +37,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  console.log('Inicializando API con CORS:', {
-    origin: ['https://200.48.199.90:8202', 'https://10.6.26.16:8202']
-  });
   await app.listen(process.env.SERVER_PORT, () => {
     console.log('Server listening on port ' + process.env.SERVER_PORT);
   });
