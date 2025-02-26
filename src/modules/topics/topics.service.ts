@@ -233,7 +233,7 @@ export class TopicsService {
     qb.where('users.state != :state', { state: BaseEntityState.DELETED });
     qb.andWhere('users.role_id = :role_id', { role_id: RoleIds.HEALTH_TEAM });
     if (!isCentral) {
-      qb.andWhere('medical_calendars.campus_id IN (:campusIds)', { campusIds });
+      qb.andWhere('medical_calendars.campus_id IN (:...campusIds)', { campusIds });
     }
 
     qb.orderBy(req_query.order_col, req_query.order_dir);
@@ -284,7 +284,7 @@ export class TopicsService {
     qb.leftJoin('campus.client', 'client');
 
     if (!isCentral) {
-      qb.where('medical_calendars.campus_id IN (:campusIds)', { campusIds });
+      qb.where('medical_calendars.campus_id IN (:...campusIds)', { campusIds });
     }
 
     if (req_query.month && req_query.year) {

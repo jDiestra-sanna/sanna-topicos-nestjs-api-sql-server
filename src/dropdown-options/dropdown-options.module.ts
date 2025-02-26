@@ -25,6 +25,7 @@ import { PatientsModule } from 'src/modules/medical-consultations/patients/patie
 import { ConsultationHistoriesModule } from 'src/modules/consultation-history/consultation-history.module';
 import { ClientLevelsModule } from 'src/modules/client-levels/client-levels.module';
 import { MedicalCalendarsModule } from 'src/modules/medical-calendars/medical-calendars.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { MedicalCalendarsModule } from 'src/modules/medical-calendars/medical-ca
     ProffesionModule,
     CostCenterModule,
     FileTypeModule,
+    AuthModule,
   ],
   controllers: [DropdownOptionsController],
 })

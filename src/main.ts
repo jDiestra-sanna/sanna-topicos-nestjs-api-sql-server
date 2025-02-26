@@ -4,10 +4,16 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { ApiAlias } from './config/api-alias.config';
+import * as express from 'express';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import '@aikidosec/firewall';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const expressApp = express();
+  expressApp.disable('x-powered-by');
+  const adapter = new ExpressAdapter(expressApp);
+
+  const app = await NestFactory.create(AppModule, adapter);
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 

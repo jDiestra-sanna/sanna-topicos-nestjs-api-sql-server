@@ -1,6 +1,6 @@
 import { AuthUser } from 'src/common/decorators/auth-user.decorator';
 import { BaseEntityState } from 'src/common/entities/base.entity';
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
 import { EnabledDisabledDto } from 'src/common/dto/enabled-disabled.dto';
 import { LogsService } from '../logs/logs.service';
 import { LogTargetsIds } from '../logs/entities/log-target';
@@ -10,18 +10,29 @@ import { paginatedRspOk, rsp404, rspOk, rspOkDeleted } from 'src/common/helpers/
 import { ParamIdDto } from 'src/common/dto/url-param.dto';
 import { ReadNotificationsDto } from './dto/read-notification.dto';
 import { ReqQuery } from './dto/req-query.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { User } from '../users/entities/user.entity';
+import { AuthService } from 'src/auth/auth.service';
+import { extractTokenFromHeader } from 'src/common/helpers/generic';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(
     private logsService: LogsService,
     private notificationsService: NotificationsService,
+    private authService: AuthService,
   ) {}
 
   @Get()
-  async findAll(@Query() query: ReqQuery, @Res() res: Response) {
+  async findAll(@Query() query: ReqQuery, @Res() res: Response, @Req() req: Request) {
+    const token = extractTokenFromHeader(req);
+    const payload = await this.authService.getPayloadFromToken(token);
+    const user = await this.authService.getUserByPayload(payload);
+
+    if (user) {
+      query.user_id = user.id;
+    }
+
     const result = await this.notificationsService.findAll(query);
 
     return paginatedRspOk(res, result.items, result.total, result.limit, result.page);

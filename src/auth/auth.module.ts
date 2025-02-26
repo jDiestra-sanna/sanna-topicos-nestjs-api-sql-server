@@ -43,5 +43,6 @@ import { AttendanceRecordsModule } from 'src/modules/attendance-records/attendan
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, TotpService, TOTPStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

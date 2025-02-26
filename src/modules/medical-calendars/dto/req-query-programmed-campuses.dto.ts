@@ -12,8 +12,9 @@ export class ReqQueryCampusList extends BaseFindAllRequestQuery {
   @IsEnum(OrderCol)
   order_col: OrderCol = OrderCol.NAME;
 
+  @IsOptional()
   @UserExists({ message: 'Usuario no exise' })
   @Type(() => Number)
   @IsInt()
-  user_id: number;
+  user_id?: number;
 }

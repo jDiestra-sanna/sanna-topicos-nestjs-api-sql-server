@@ -24,7 +24,7 @@ export class HealthTeamProfilesController {
     const data = await this.healthTeamProfilesServices.findOneForm({
       ...query,
       campus_id: query.campus_id,
-      user_id: query.user_id,
+      user_id: query.user_id ?? authUser.id,
       day: currentDate,
       logged_user_role_id: authUser.role_id
     });

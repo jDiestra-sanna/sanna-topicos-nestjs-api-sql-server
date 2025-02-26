@@ -183,6 +183,7 @@ export class AuthController {
 
       return rspOk(res, {
         id: req.user.id,
+        role_id: req.user?.role_id,
         name: req.user.name,
         surname: req.user.surname,
         pic: req.user.pic,
@@ -247,6 +248,7 @@ export class AuthController {
 
     return rspOk(res, {
       id: req.user.id,
+      role_id: req.user?.role_id,
       name: req.user.name,
       surname: req.user.surname,
       pic: req.user.pic,

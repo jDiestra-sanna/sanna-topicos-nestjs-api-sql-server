@@ -1,5 +1,5 @@
-import { Controller, Get, Param, ParseIntPipe, Query, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Param, ParseIntPipe, Query, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { paginatedRspOk, rspOk } from 'src/common/helpers/http-responses';
 import { CampusService } from 'src/modules/campus/campus.service';
 import { ClientsService } from 'src/modules/clients/clients.service';
@@ -61,6 +61,8 @@ import { ClientLevelsService } from 'src/modules/client-levels/client-levels.ser
 import { MedicalCalendarsService } from 'src/modules/medical-calendars/medical-calendars.service';
 import { ReqQueryCampusList } from 'src/modules/medical-calendars/dto/req-query-programmed-campuses.dto';
 import { name } from 'ejs';
+import { AuthService } from 'src/auth/auth.service';
+import { extractTokenFromHeader } from 'src/common/helpers/generic';
 
 @Controller('dropdown-options')
 export class DropdownOptionsController {
@@ -92,6 +94,7 @@ export class DropdownOptionsController {
     private readonly patientsService: PatientsService,
     private readonly clientLevelsService: ClientLevelsService,
     private readonly medicalCalendarsService: MedicalCalendarsService,
+    private readonly authService: AuthService,
   ) {}
 
   @Get('groups')
@@ -405,13 +408,20 @@ export class DropdownOptionsController {
     return paginatedRspOk(res, items.items, items.total, items.limit, items.page);
   }
 
-  @Get('users/:userId/assignments/clients')
+  // @Get('users/:userId/assignments/clients')
+  @Get('assignments/clients')
   async getUserAssignmentsClients(
     @Query() query: ReqQueryFindAllUserAssigmentsClients,
     @Param('userId', new ParseIntPipe({ errorHttpStatusCode: 400 })) userId: number,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
-    const items = await this.consultationHistoriesService.findAllUserAssigmentsClients(userId, query);
+    const token = extractTokenFromHeader(req);
+    const payload = await this.authService.getPayloadFromToken(token);
+    const user = await this.authService.getUserByPayload(payload);
+
+    const items = await this.consultationHistoriesService.findAllUserAssigmentsClients(user.id, query);
+
     return paginatedRspOk(res, items.items, items.total, items.limit, items.page);
   }
 
@@ -438,7 +448,13 @@ export class DropdownOptionsController {
   }
 
   @Get('scheduled-campuses')
-  async getProgrammedCampuses(@Query() query: ReqQueryCampusList, @Res() res: Response) {
+  async getProgrammedCampuses(@Query() query: ReqQueryCampusList, @Res() res: Response, @Req() req: Request) {
+    const token = extractTokenFromHeader(req);
+    const payload = await this.authService.getPayloadFromToken(token);
+    const user = await this.authService.getUserByPayload(payload);
+
+    query.user_id = user.id;
+
     const result = await this.medicalCalendarsService.scheduledCampusesPaginated(query);
 
     const items = result.items.map(item => item.campus)

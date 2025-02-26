@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDateString, IsInt, Max, Min } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { CampusExists } from 'src/modules/campus/decorators/campus-exists.decorator';
 import { RoleExists } from 'src/modules/roles/decorators/role-exists.decorator';
 import { UserExists } from 'src/modules/users/decorators/user-exists.decorator';
@@ -17,6 +17,7 @@ export class ReqQueryForm {
   @Type(() => Number)
   month: number;
 
+  @IsOptional()
   @IsInt()
   @Min(1)
   @UserExists({ message: 'Usuario no existe' })
