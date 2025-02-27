@@ -412,7 +412,7 @@ export class DropdownOptionsController {
   @Get('assignments/clients')
   async getUserAssignmentsClients(
     @Query() query: ReqQueryFindAllUserAssigmentsClients,
-    @Param('userId', new ParseIntPipe({ errorHttpStatusCode: 400 })) userId: number,
+    // @Param('userId', new ParseIntPipe({ errorHttpStatusCode: 400 })) userId: number,
     @Req() req: Request,
     @Res() res: Response,
   ) {
