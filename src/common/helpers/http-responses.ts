@@ -2,12 +2,12 @@ import { HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { RspDto, PaginatedDto } from '../dto/http-response.dto';
 
-export const rspOk = (res: Response, data: any = null) => {
+export const rspOk = (res: Response, data: any = null, message: string = 'ok') => {
   const status = HttpStatus.OK;
 
   const rspDto = new RspDto();
 
-  rspDto.message = 'ok';
+  rspDto.message = message;
   rspDto.data = data;
   rspDto.statusCode = status;
 

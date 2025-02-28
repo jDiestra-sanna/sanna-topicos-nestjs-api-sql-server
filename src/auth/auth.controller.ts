@@ -147,11 +147,11 @@ export class AuthController {
     const data = { isLoggedIn: false };
     const user = await this.usersService.findOneByEmail(body.email);
 
-    if (!user) return rspOk(res, data);
+    if (!user) return rspOk(res, data, 'No se encuentra logueado');
 
     data.isLoggedIn = await this.sessionsService.isUserLoggedIn(user.id);
 
-    return rspOk(res, data);
+    return rspOk(res, data, 'Si el usuario se encuentra registrado, recibira un correo electrónico');
   }
 
   @SkipAuth()

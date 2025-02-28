@@ -19,7 +19,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'https://topicare.doctormas.com.pe',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: 'Content-Disposition'
   });
