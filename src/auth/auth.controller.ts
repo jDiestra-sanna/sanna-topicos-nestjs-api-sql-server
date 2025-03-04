@@ -155,7 +155,7 @@ export class AuthController {
   }
 
   @SkipAuth()
-  // @UseGuards(RecaptchaGuard)
+  @UseGuards(RecaptchaGuard)
   @UseGuards(LocalAuthGuard)
   @Post('pre-login')
   async preLogin(@Body() body: LoginDto, @Res() res: Response, @Req() req: Request & { user: User }) {
