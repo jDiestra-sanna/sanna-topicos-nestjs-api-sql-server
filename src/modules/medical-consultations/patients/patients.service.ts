@@ -112,7 +112,7 @@ export class PatientsService {
     if (updatePatientDto.document_type_id === documentType.FOREIGN_CARD)
       updatePatientDto.document_number = updatePatientDto.document_number.padStart(12, '0');
 
-    const patient = await this.patientsRepository.findOneBy({ id });
+    const patient = await this.patientsRepository.findOneBy({ id, state: Not(BaseEntityState.DELETED) });
 
     if (!patient) return;
 

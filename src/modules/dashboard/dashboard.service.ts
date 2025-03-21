@@ -200,7 +200,7 @@ export class DashboardService {
 
   async getMentalHealthConsultations(query: ReqQuery) {
     let qb = this.medicalConsultationRepository.createQueryBuilder('mc');
-    qb.select('COUNT(DISTINCT mc.patient_id) count');
+    qb.select('COUNT(mc.patient_id) count');
     qb.innerJoin('attendance_details', 'ad', 'ad.medical_consultation_id = mc.id');
     qb.innerJoin('medical_diagnoses', 'md', 'md.medical_consultation_id = mc.id');
     qb.innerJoin('campus', 'ca', 'ca.id = mc.campus_id');

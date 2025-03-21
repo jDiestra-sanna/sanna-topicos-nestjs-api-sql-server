@@ -74,6 +74,7 @@ export class UserAssignmentsService {
     qb.innerJoinAndSelect('ua.user', 'user');
     qb.where('ua.campus_id = :campus_id', { campus_id });
     qb.andWhere('ua.state = :state', { state: BaseEntityState.ENABLED });
+    qb.addSelect('user.id AS id');
 
     if (role_id) {
       qb.andWhere('user.role_id = :role_id', { role_id });

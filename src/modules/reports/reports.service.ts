@@ -194,7 +194,6 @@ export class ReportsService {
     }
 
     let items = await qb.getRawMany();
-    console.log(items)
 
     return items;
   }
