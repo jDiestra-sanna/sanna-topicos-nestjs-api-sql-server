@@ -1,4 +1,4 @@
-USE [sanna-topicos];
+USE [sanna-topicos-mssql];
 GO
 
 -- Crear el índice único
