@@ -55,6 +55,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { CampusConditionsModule } from './modules/campus-conditions/campus-conditions.module';
 import { CampusSchedulesModule } from './modules/campus-schedules/campus-schedules.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { InactivityGuard } from './common/guards/inactivity/inactivity.guard';
+import { AttendanceRecordsModule } from './modules/attendance-records/attendance-records.module';
 
 const systemModules = [
   ReportsModule,
@@ -102,6 +104,7 @@ const systemModules = [
   AuthModule,
   NotificationsModule,
   DashboardModule,
+  AttendanceRecordsModule,
 ];
 
 @Module({
@@ -163,6 +166,7 @@ const systemModules = [
     { provide: APP_GUARD, useClass: PermsGuard },
     { provide: APP_GUARD, useClass: BlackListGuard },
     { provide: APP_GUARD, useClass: CustomThrottlerGuard },
+    { provide: APP_GUARD, useClass: InactivityGuard },
   ],
 })
 export class AppModule {}

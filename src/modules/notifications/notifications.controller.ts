@@ -14,7 +14,9 @@ import { Request, Response } from 'express';
 import { User } from '../users/entities/user.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { extractTokenFromHeader } from 'src/common/helpers/generic';
+import { SkipInactivity } from 'src/common/decorators/skip-inactivity.decorator';
 
+@SkipInactivity()
 @Controller('notifications')
 export class NotificationsController {
   constructor(

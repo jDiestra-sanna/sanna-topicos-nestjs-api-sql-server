@@ -329,4 +329,8 @@ export class CampusService {
       .andWhere('state != :state', { state: BaseEntityState.DELETED })
       .getExists();
   }
+
+  async partialUpdate(criteria: Partial<Campus>, data: UpdateCampusDto) {
+    await this.campusRepository.update(criteria, data);
+  }
 }

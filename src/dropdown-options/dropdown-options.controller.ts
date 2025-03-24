@@ -63,7 +63,9 @@ import { ReqQueryCampusList } from 'src/modules/medical-calendars/dto/req-query-
 import { name } from 'ejs';
 import { AuthService } from 'src/auth/auth.service';
 import { extractTokenFromHeader } from 'src/common/helpers/generic';
+import { SkipInactivity } from 'src/common/decorators/skip-inactivity.decorator';
 
+@SkipInactivity()
 @Controller('dropdown-options')
 export class DropdownOptionsController {
   constructor(

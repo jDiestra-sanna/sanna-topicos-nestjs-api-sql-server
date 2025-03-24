@@ -22,6 +22,7 @@ export enum LogTypesIds {
   REQUESTED_CHANGE_PASSWORD = 16,
   CHANGED_PASSWORD = 17,
   REPORT_EMERGENCY = 18,
+  DISCONNECTED_BY_INACTIVITY = 19,
 }
 
 @Entity({ name: 'log_types' })

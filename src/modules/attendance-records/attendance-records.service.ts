@@ -110,4 +110,14 @@ export class AttendanceRecordsService {
   async update(criteria: Partial<AttendanceRecord>, data: UpdateAttendanceDto) {
     await this.attendanceRecordsRepository.update(criteria, data);
   }
+
+  async findLastRecordUserAttending(user_id: number) {
+    return await this.attendanceRecordsRepository.createQueryBuilder('attendance_record')
+    .where('attendance_record.user_id = :user_id', { user_id })
+    .andWhere('attendance_record.day = CAST(GETDATE() AS DATE)')
+    .andWhere('attendance_record.leaving_time IS NULL')
+    .orderBy('attendance_record.day', 'DESC')
+    .addOrderBy('attendance_record.entry_time', 'DESC')
+    .getOne();
+  }
 }

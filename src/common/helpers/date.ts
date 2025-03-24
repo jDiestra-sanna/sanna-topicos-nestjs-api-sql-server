@@ -3,8 +3,8 @@ import { DiffMilitaryTimeArgs } from './date.interface';
 
 Settings.defaultZone = 'America/Lima';
 
-export const getSystemDatetime = (): string => {
-  return DateTime.local().toFormat('yyyy-MM-dd HH:mm:ss');
+export const getSystemDatetime = (format: string = 'yyyy-MM-dd HH:mm:ss'): string => {
+  return DateTime.local().toFormat(format);
 };
 
 export const getSystemDate = (): string => {

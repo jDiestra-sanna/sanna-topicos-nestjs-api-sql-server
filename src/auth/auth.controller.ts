@@ -42,7 +42,9 @@ import { TotpService } from 'src/modules/totp/totp.service';
 import { TOTPGuard } from './totp.guard';
 import { LoggedInDto } from './dto/logged-in.dto';
 import { AttendanceRecordsService } from 'src/modules/attendance-records/attendance-records.service';
+import { SkipInactivity } from 'src/common/decorators/skip-inactivity.decorator';
 
+@SkipInactivity()
 @Controller('auth')
 export class AuthController {
   constructor(

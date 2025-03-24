@@ -137,4 +137,12 @@ export class LogsService {
     if (!dataChanged) return '';
     return JSON.stringify(dataChanged);
   }
+
+  async getLastActivity(userId: number): Promise<Log | null> {
+    return await this.logsRepository
+      .createQueryBuilder('log')
+      .where('log.user_id = :userId', { userId })
+      .orderBy('log.date_created', 'DESC')
+      .getOne();
+  }
 }
