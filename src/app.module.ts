@@ -140,7 +140,7 @@ const systemModules = [
         },
         synchronize: false,
         // synchronize: configService.get('NODE_ENV') !== 'production',
-        logging: configService.get('NODE_ENV') === 'local',
+        // logging: configService.get('NODE_ENV') === 'local',
       }),
     }),
 

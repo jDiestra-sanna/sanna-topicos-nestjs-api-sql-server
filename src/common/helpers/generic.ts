@@ -28,3 +28,18 @@ export const castBooleansToYesNo = (obj: any) => {
     }
   }
 };
+
+export const decodeId = (encodedId?: string): number | null => {
+  if (!encodedId) return null;
+
+  const decoded = Buffer.from(encodedId, 'base64').toString('utf8');
+
+  const [salt, id, timestamp] = decoded.split('_');
+
+  if (salt !== 'sanna') {
+    return null;
+  }
+
+  return parseInt(id);
+
+}

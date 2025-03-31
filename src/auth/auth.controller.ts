@@ -144,12 +144,13 @@ export class AuthController {
   }
 
   @SkipAuth()
+  @UseGuards(RecaptchaGuard)
   @Post('status-logged-in')
   async isLoggedIn(@Body() body: LoggedInDto, @Res() res: Response) {
     const data = { isLoggedIn: false };
     const user = await this.usersService.findOneByEmail(body.email);
 
-    if (!user) return rspOk(res, data, 'No se encuentra logueado');
+    if (!user) return rspOk(res, data, 'Si el usuario se encuentra registrado, recibira un correo electrónico');
 
     data.isLoggedIn = await this.sessionsService.isUserLoggedIn(user.id);
 
@@ -157,8 +158,8 @@ export class AuthController {
   }
 
   @SkipAuth()
-  @UseGuards(RecaptchaGuard)
   @UseGuards(LocalAuthGuard)
+  @UseGuards(RecaptchaGuard)
   @Post('pre-login')
   async preLogin(@Body() body: LoginDto, @Res() res: Response, @Req() req: Request & { user: User }) {
     const user = req.user;
@@ -273,16 +274,16 @@ export class AuthController {
   }
 
   @SkipAuth()
+  @UseGuards(RecaptchaGuard)
   @Post('reset-password')
   async resetPassword(@Body() body: RecoverDto, @Res() res: Response) {
     const user = await this.usersService.findOneByEmail(body.username);
-
     if (!user) {
-      throw new BadRequestException('Usuario no existe');
+      throw new BadRequestException('Si el usuario se encuentra registrado, recibira un correo electrónico.');
     }
 
     if (user.state !== BaseEntityState.ENABLED) {
-      throw new ForbiddenException('No autorizado');
+      throw new ForbiddenException('Si el usuario se encuentra registrado, recibira un correo electrónico.');
     }
 
     const token = await this.authService.resetPassword(user);
@@ -293,7 +294,7 @@ export class AuthController {
       user_id: user.id,
       date_expiration: timestampToDate(jwtPayload.exp),
     });
-
+    
     await this.authService.removeExpiredTokens();
 
     await this.mailsService.sendRecoverPassword(user.name, user.email, token.access_token);

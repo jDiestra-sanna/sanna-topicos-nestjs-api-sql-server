@@ -18,7 +18,7 @@ export class ReqQuery extends BaseFindAllRequestQuery {
 
   @IsOptional()
   @IsInt()
-  @UserExists({ message: 'Usuario no existe' })
+  @UserExists({ message: 'Usuario incorrecto o no existe' })
   @Type(() => Number)
   user_id: number;
 }

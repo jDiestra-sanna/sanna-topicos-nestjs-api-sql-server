@@ -12,9 +12,9 @@ export class RecaptchaGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { body } = context.switchToHttp().getRequest();
-
+    
     if (process.env.NODE_ENV !== 'production') return true;
-
+    
     const { data } = await this.httpService.axiosRef.post(
       `https://www.google.com/recaptcha/api/siteverify?response=${body.token_recaptcha}&secret=${process.env.RECAPTCHA_SECRET_KEY}`,
     );

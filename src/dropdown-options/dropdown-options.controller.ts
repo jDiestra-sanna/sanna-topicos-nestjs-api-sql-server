@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, Req, Res } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Param, ParseIntPipe, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { paginatedRspOk, rspOk } from 'src/common/helpers/http-responses';
 import { CampusService } from 'src/modules/campus/campus.service';
@@ -417,12 +417,9 @@ export class DropdownOptionsController {
     // @Param('userId', new ParseIntPipe({ errorHttpStatusCode: 400 })) userId: number,
     @Req() req: Request,
     @Res() res: Response,
+    @AuthUser() authUser: User,
   ) {
-    const token = extractTokenFromHeader(req);
-    const payload = await this.authService.getPayloadFromToken(token);
-    const user = await this.authService.getUserByPayload(payload);
-
-    const items = await this.consultationHistoriesService.findAllUserAssigmentsClients(user.id, query);
+    const items = await this.consultationHistoriesService.findAllUserAssigmentsClients(authUser.id, query);
 
     return paginatedRspOk(res, items.items, items.total, items.limit, items.page);
   }
@@ -450,12 +447,12 @@ export class DropdownOptionsController {
   }
 
   @Get('scheduled-campuses')
-  async getProgrammedCampuses(@Query() query: ReqQueryCampusList, @Res() res: Response, @Req() req: Request) {
-    const token = extractTokenFromHeader(req);
-    const payload = await this.authService.getPayloadFromToken(token);
-    const user = await this.authService.getUserByPayload(payload);
+  async getProgrammedCampuses(@Query() query: ReqQueryCampusList, @Res() res: Response, @Req() req: Request, @AuthUser() authUser: User) {
+    if (query?.user_id && query?.user_id !== authUser.id) {
+      throw new ForbiddenException('No autorizado');
+    }
 
-    query.user_id = user.id;
+    query.user_id = authUser.id;
 
     const result = await this.medicalCalendarsService.scheduledCampusesPaginated(query);
 

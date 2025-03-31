@@ -83,7 +83,7 @@ export class AuthService {
         state: BaseEntityState.DELETED,
         date_deleted: getSystemDatetime(),
       })
-      .where('date_expiration < NOW()')
+      .where('date_expiration < GETDATE()')
       .andWhere('state = :state', { state: BaseEntityState.ENABLED })
       .execute();
   }

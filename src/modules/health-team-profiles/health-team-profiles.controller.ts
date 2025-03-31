@@ -1,5 +1,5 @@
 import { AuthUser } from 'src/common/decorators/auth-user.decorator';
-import { Controller, Get, Param, ParseIntPipe, Query, Res } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Param, ParseIntPipe, Query, Res } from '@nestjs/common';
 import { getSystemDate } from 'src/common/helpers/date';
 import { HealthTeamProfilesService } from './health-team-profiles.service';
 import { MedicalCalendarsService } from '../medical-calendars/medical-calendars.service';
@@ -9,6 +9,8 @@ import { rsp404, rspOk } from 'src/common/helpers/http-responses';
 import { User } from '../users/entities/user.entity';
 import * as fileHelper from 'src/common/helpers/file';
 import * as path from 'node:path';
+import { decodeId } from 'src/common/helpers/generic';
+import { RoleIds } from '../roles/entities/role.entity';
 
 @Controller('health-team-profiles')
 export class HealthTeamProfilesController {
@@ -21,10 +23,16 @@ export class HealthTeamProfilesController {
   async findOneForm(@Query() query: ReqQueryForm, @Res() res: Response, @AuthUser() authUser: User) {
     const currentDate = getSystemDate();
 
+    const decodedUserId = decodeId(query?.user_id);
+
+    if (authUser.role_id === RoleIds.HEALTH_TEAM && decodedUserId !== authUser.id) {
+      throw new ForbiddenException('No autorizado');
+    }
+
     const data = await this.healthTeamProfilesServices.findOneForm({
       ...query,
       campus_id: query.campus_id,
-      user_id: query.user_id ?? authUser.id,
+      user_id: decodedUserId ?? authUser.id,
       day: currentDate,
       logged_user_role_id: authUser.role_id
     });

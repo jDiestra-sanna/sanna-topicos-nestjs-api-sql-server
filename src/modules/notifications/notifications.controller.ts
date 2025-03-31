@@ -1,6 +1,6 @@
 import { AuthUser } from 'src/common/decorators/auth-user.decorator';
 import { BaseEntityState } from 'src/common/entities/base.entity';
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
 import { EnabledDisabledDto } from 'src/common/dto/enabled-disabled.dto';
 import { LogsService } from '../logs/logs.service';
 import { LogTargetsIds } from '../logs/entities/log-target';
@@ -26,14 +26,12 @@ export class NotificationsController {
   ) {}
 
   @Get()
-  async findAll(@Query() query: ReqQuery, @Res() res: Response, @Req() req: Request) {
-    const token = extractTokenFromHeader(req);
-    const payload = await this.authService.getPayloadFromToken(token);
-    const user = await this.authService.getUserByPayload(payload);
-
-    if (user) {
-      query.user_id = user.id;
+  async findAll(@Query() query: ReqQuery, @Res() res: Response, @Req() req: Request, @AuthUser() authUser: User) {
+    if (query?.user_id && query?.user_id !== authUser.id) {
+      throw new ForbiddenException('No autorizado');
     }
+
+    query.user_id = authUser.id;
 
     const result = await this.notificationsService.findAll(query);
 
