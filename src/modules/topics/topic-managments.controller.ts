@@ -12,7 +12,7 @@ export class TopicManagementsController {
 
   @Get()
   async findAllTopicManagements(@AuthUser() authUser: User, @Res() res: Response) {
-    if (authUser.role_id !== RoleIds.CLIENT && authUser.role_id !== RoleIds.Admin) {
+    if (authUser.role_id !== RoleIds.CLIENT && authUser.role_id !== RoleIds.Admin && authUser.role_id !== RoleIds.ROOT) {
       throw new ForbiddenException('Usted no está autorizado para ver este módulo');
     }
 
