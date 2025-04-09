@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -10,13 +10,17 @@ import { LogType } from './entities/log-type.dto';
 import { CreateLogDto } from './dto/create-log.dto';
 import { LogTarget } from './entities/log-target';
 import { DataChanged } from './data-changed.interface';
+import * as obfuscateMail from 'obfuscate-mail';
+import { Request } from 'express';
+import { REQUEST } from '@nestjs/core';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class LogsService {
   constructor(
+    @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(Log)
     private logsRepository: Repository<Log>,
-  ) {}
+  ) { }
 
   async findAll(req_query: ReqQuery): Promise<PaginatedResult<Log>> {
     const skip = req_query.limit * req_query.page;
@@ -48,6 +52,7 @@ export class LogsService {
       'user.id',
       'user.name',
       'user.surname',
+      'user.email',
       'role.id',
       'role.name',
       'log_type.id',
@@ -99,7 +104,28 @@ export class LogsService {
     qb.take(req_query.limit);
     qb.orderBy(req_query.order_col, req_query.order_dir);
 
-    const items = await qb.getMany();
+    let items = await qb.getMany();
+
+    items = items.map(item => {
+      const email = item.user.email
+      const obfuscatedEmail = obfuscateMail(email, {
+        asterisksLength: 6,
+        minimumNameObfuscationLength: 2,
+        visibleCharactersStartLength: 3,
+        // visibleCharactersMiddleLength: 2,
+        visibleCharactersEndLength: 2,
+        showDomainName: false,
+        showDomainExtension: true,
+      })
+
+      return {
+        ...item,
+        user: {
+          ...item.user,
+          email: obfuscatedEmail
+        }
+      }
+    })
 
     return {
       total,
@@ -110,7 +136,10 @@ export class LogsService {
   }
 
   async create(createLogDto: CreateLogDto) {
-    this.logsRepository.save(createLogDto);
+    const ip = this.request.ip ||
+      this.request.connection.remoteAddress;
+    // console.log(" El ip es", ip)
+    this.logsRepository.save({ ...createLogDto, ip });
   }
 
   getDataChanged(originalObj: Record<string, any>, propsChanged: Record<string, any>) {
@@ -121,7 +150,7 @@ export class LogsService {
       const newValue = propsChanged[key];
 
       if (originalValue === newValue) return;
-      
+
       dataChanged[key] = {
         old: originalValue,
         new: newValue

@@ -39,6 +39,9 @@ export class Log {
   @Index()
   date_created: string;
 
+  @Column({ nullable: true, default: null })
+  ip: string;
+
   @ManyToOne(() => LogType, logType => logType.logs)
   @JoinColumn({ name: 'log_type_id' })
   log_type: LogType;

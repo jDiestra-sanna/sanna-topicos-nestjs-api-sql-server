@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { DateTime } from 'luxon';
@@ -16,7 +16,7 @@ import { RoleIds } from 'src/modules/roles/entities/role.entity';
 import { SessionsService } from 'src/modules/sessions/sessions.service';
 import { User } from 'src/modules/users/entities/user.entity';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class InactivityGuard implements CanActivate {
   constructor(
     @Inject(LogsService) private logsService: LogsService,

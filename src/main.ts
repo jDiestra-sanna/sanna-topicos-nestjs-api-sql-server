@@ -14,6 +14,9 @@ async function bootstrap() {
   const adapter = new ExpressAdapter(expressApp);
 
   const app = await NestFactory.create(AppModule, adapter);
+  
+  const expressInstance = app.getHttpAdapter().getInstance()
+  expressInstance.set('trust proxy', true)
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
