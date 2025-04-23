@@ -9,7 +9,8 @@ export class CreateSessionDto {
   os: string;
 
   @IsString()
-  os_version: string;
+  @IsOptional()
+  os_version?: string;
 
   @IsOptional()
   @IsString()

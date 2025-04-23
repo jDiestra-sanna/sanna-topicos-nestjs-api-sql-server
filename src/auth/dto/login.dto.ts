@@ -8,7 +8,8 @@ export class LoginDto {
   os: string;
 
   @IsString()
-  os_version: string;
+  @IsOptional()
+  os_version?: string;
 
   @IsString()
   platform: string;

@@ -181,13 +181,15 @@ export class DropdownOptionsController {
   }
 
   @Get('roles')
-  async getRoles(@Query() query: ReqQueryRole, @Res() res: Response) {
+  async getRoles(@Query() query: ReqQueryRole, @Res() res: Response, @AuthUser() authUser: User) {
     const result = await this.rolesService.findAll(query);
 
-    let items = result.items.map(item => ({
-      id: item.id,
-      name: item.name,
-    }));
+    let items = result.items
+      .filter(item => !(authUser.role_id !== RoleIds.ROOT && item.id === RoleIds.ROOT))
+      .map(item => ({
+        id: item.id,
+        name: item.name,
+      }));
 
     return paginatedRspOk(res, items, result.total, result.limit, result.page);
   }
@@ -447,7 +449,12 @@ export class DropdownOptionsController {
   }
 
   @Get('scheduled-campuses')
-  async getProgrammedCampuses(@Query() query: ReqQueryCampusList, @Res() res: Response, @Req() req: Request, @AuthUser() authUser: User) {
+  async getProgrammedCampuses(
+    @Query() query: ReqQueryCampusList,
+    @Res() res: Response,
+    @Req() req: Request,
+    @AuthUser() authUser: User,
+  ) {
     if (query?.user_id && query?.user_id !== authUser.id) {
       throw new ForbiddenException('No autorizado');
     }
@@ -456,7 +463,7 @@ export class DropdownOptionsController {
 
     const result = await this.medicalCalendarsService.scheduledCampusesPaginated(query);
 
-    const items = result.items.map(item => item.campus)
+    const items = result.items.map(item => item.campus);
 
     return paginatedRspOk(res, items, result.total, result.limit, result.page);
   }

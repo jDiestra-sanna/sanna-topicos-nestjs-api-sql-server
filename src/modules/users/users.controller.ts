@@ -41,10 +41,12 @@ export class UsersController {
   ) {}
 
   @Get()
-  async findAll(@Query() query: ReqQuery, @Res() res: Response) {
+  async findAll(@Query() query: ReqQuery, @Res() res: Response, @AuthUser() authUser: User) {
     const result = await this.userService.findAll(query);
 
-    return paginatedRspOk(res, result.items, result.total, result.limit, result.page);
+    const itemsFiltered = result.items.filter(item => !(authUser.role_id !== RoleIds.ROOT && item.id === RoleIds.ROOT));
+
+    return paginatedRspOk(res, itemsFiltered, result.total, result.limit, result.page);
   }
 
   @Get('export')
