@@ -46,7 +46,7 @@ export class UsersController {
 
     const itemsFiltered = result.items.filter(item => !(authUser.role_id !== RoleIds.ROOT && item.id === RoleIds.ROOT));
 
-    return paginatedRspOk(res, itemsFiltered, result.total, result.limit, result.page);
+    return paginatedRspOk(res, itemsFiltered, itemsFiltered.length, result.limit, result.page);
   }
 
   @Get('export')
