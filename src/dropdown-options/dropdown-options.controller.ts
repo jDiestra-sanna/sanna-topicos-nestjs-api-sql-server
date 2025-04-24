@@ -191,7 +191,7 @@ export class DropdownOptionsController {
         name: item.name,
       }));
 
-    return paginatedRspOk(res, items, result.total, result.limit, result.page);
+    return paginatedRspOk(res, items, items.length, result.limit, result.page);
   }
 
   @Get('document-types')
