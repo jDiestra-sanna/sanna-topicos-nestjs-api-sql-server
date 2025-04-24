@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { EnabledDisabledDto } from 'src/common/dto/enabled-disabled.dto';
 import { BaseEntityState } from 'src/common/entities/base.entity';
@@ -14,6 +14,7 @@ import { LogTargetsIds } from '../logs/entities/log-target';
 import { AuthUser } from 'src/common/decorators/auth-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { UserTypeIds } from '../users/entities/type-user.entity';
+import { RoleIds } from './entities/role.entity';
 
 @Controller('roles')
 export class RolesController {
@@ -23,17 +24,23 @@ export class RolesController {
   ) {}
 
   @Get()
-  async findAll(@Query() query: ReqQuery, @Res() res: Response) {
+  async findAll(@Query() query: ReqQuery, @Res() res: Response, @AuthUser() authUser: User) {
     const result = await this.rolesService.findAll(query);
 
-    return paginatedRspOk(res, result.items, result.total, result.limit, result.page);
+    const itemsFiltered = result.items.filter(item => !(authUser.role_id !== RoleIds.ROOT && item.id === RoleIds.ROOT));
+
+    return paginatedRspOk(res, itemsFiltered, result.total, result.limit, result.page);
   }
 
   @Get(':id')
-  async findOne(@Param() params: ParamIdDto, @Res() res: Response) {
+  async findOne(@Param() params: ParamIdDto, @Res() res: Response, @AuthUser() authUser: User) {
     const data = await this.rolesService.findOne(params.id);
 
     if (!data) return rsp404(res);
+
+    if (authUser.role_id !== RoleIds.ROOT && data.id === RoleIds.ROOT) {
+      throw new ForbiddenException("Usted no tiene permisos para acceder a este recurso");
+    }
 
     return rspOk(res, data);
   }
@@ -66,6 +73,10 @@ export class RolesController {
 
     if (!role) return rsp404(res);
 
+    if (authUser.role_id !== RoleIds.ROOT && role.id === RoleIds.ROOT) {
+      throw new ForbiddenException("Usted no tiene permisos para modificar este recurso");
+    }
+
     const dataChanged = this.logsService.getDataChangedJson(role, updateRoleDto);
     await this.rolesService.update(params.id, updateRoleDto);
 
@@ -91,6 +102,10 @@ export class RolesController {
 
     if (!role) return rsp404(res);
 
+    if (authUser.role_id !== RoleIds.ROOT && role.id === RoleIds.ROOT) {
+      throw new ForbiddenException("Usted no tiene permisos para eliminar este recurso");
+    }
+
     await this.rolesService.remove(params.id);
 
     this.logsService.create({
@@ -114,6 +129,10 @@ export class RolesController {
     const role = await this.rolesService.findOne(params.id);
 
     if (!role) return rsp404(res);
+
+    if (authUser.role_id !== RoleIds.ROOT && role.id === RoleIds.ROOT) {
+      throw new ForbiddenException("Usted no tiene permisos para modificar este recurso");
+    }
 
     if (updateStateDto.state === BaseEntityState.ENABLED) {
       await this.rolesService.enable(params.id);
