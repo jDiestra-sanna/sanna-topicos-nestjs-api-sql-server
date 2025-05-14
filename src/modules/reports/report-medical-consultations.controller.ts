@@ -4,6 +4,8 @@ import { ReqQuery } from "./dto/req-query.dto";
 import { Response } from "express";
 import { paginatedRspOk } from "src/common/helpers/http-responses";
 import ExcelJSService from "src/exceljs/exceljs.service";
+import { User } from "../users/entities/user.entity";
+import { AuthUser } from "src/common/decorators/auth-user.decorator";
 
 @Controller('report-medical-consultations')
 export class ReportMedicalConsultationsController {
@@ -13,14 +15,14 @@ export class ReportMedicalConsultationsController {
     ) { }
 
     @Get()
-    async findAll(@Query() query: ReqQuery, @Res() res: Response) {
-        const result = await this.reportsService.findAllMedicalConsultations(query)
+    async findAll(@Query() query: ReqQuery, @Res() res: Response, @AuthUser() user: User) {
+        const result = await this.reportsService.findAllMedicalConsultations({...query, user_id: user.id})
         return paginatedRspOk(res, result.items, result.total, result.limit, result.page)
     }
 
     @Get('export')
-    async exportAll(@Query() query: ReqQuery, @Res() res: Response) {
-        const data = await this.reportsService.exportAllMedicalConsultations(query)
+    async exportAll(@Query() query: ReqQuery, @Res() res: Response, @AuthUser() user: User) {
+        const data = await this.reportsService.exportAllMedicalConsultations({...query, user_id: user.id })
 
         const buffer = await this.excelJsService.setWorksheetName('reporte')
             .setColumns(

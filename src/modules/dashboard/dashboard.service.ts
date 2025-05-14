@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { ReqQuery } from './dto/req-query.dto';
 import { Client } from '../clients/entities/client.entity';
 import { CampusConditionIds } from '../campus-conditions/entities/campus-condition.entity';
+import { RoleIds } from '../roles/entities/role.entity';
 
 @Injectable()
 export class DashboardService {
@@ -78,7 +79,7 @@ export class DashboardService {
       .where('cl.state != :clientState', { clientState: BaseEntityState.DELETED })
       .andWhere('ca.state != :campusState', { campusState: BaseEntityState.DELETED });
 
-    if (!query.is_central) {
+    if (!query.is_central && query.role_id === RoleIds.CLIENT) {
       qbTopics.innerJoin('ca.user_assignments', 'ua');
       qbTopics.andWhere('ua.user_id = :userId', { userId: query.user_id });
       qbTopics.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
@@ -111,6 +112,12 @@ export class DashboardService {
     qb.innerJoin('campus', 'ca', 'ca.id = mc.campus_id');
     qb.innerJoin('clients', 'cl', 'cl.id = ca.client_id');
     qb.where('mc.state = :state', { state: BaseEntityState.ENABLED });
+
+    if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
 
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {
@@ -158,6 +165,12 @@ export class DashboardService {
     qb.innerJoin('campus', 'ca', 'ca.id = mc.campus_id');
     qb.innerJoin('clients', 'cl', 'cl.id = ca.client_id');
     qb.where('mc.state = :state', { state: BaseEntityState.ENABLED });
+
+        if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
 
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {
@@ -207,6 +220,12 @@ export class DashboardService {
     qb.innerJoin('clients', 'cl', 'cl.id = ca.client_id');
     qb.where('mc.state = :state', { state: BaseEntityState.ENABLED });
     qb.andWhere('md.involves_mental_health = 1');
+
+    if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
 
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {
@@ -259,6 +278,12 @@ export class DashboardService {
     qb.groupBy('pr.medicine_id, me.id, me.name'); 
     qb.orderBy('count', 'DESC');
 
+        if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
+
     if (top) qb.limit(top);
 
     if (query.consultation_type_id) {
@@ -296,6 +321,12 @@ export class DashboardService {
     qb.leftJoin('campus', 'ca', 'ca.id = mc.campus_id');
     qb.leftJoin('clients', 'cl', 'cl.id = ca.client_id');
     qb.where('mc.state = :state', { state: BaseEntityState.ENABLED });
+
+        if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
 
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {
@@ -336,6 +367,12 @@ export class DashboardService {
     qb.innerJoin('campus', 'ca', 'ca.id = mc.campus_id');
     qb.innerJoin('clients', 'cl', 'cl.id = ca.client_id');
     qb.where('mc.state = :state', { state: BaseEntityState.ENABLED });
+
+        if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
 
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {
@@ -392,6 +429,12 @@ export class DashboardService {
     qb.groupBy('mc.attendance_date');
     qb.orderBy('mc.attendance_date', 'ASC');
 
+        if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
+
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {
         consultation_type_id: query.consultation_type_id,
@@ -430,6 +473,12 @@ export class DashboardService {
     qb.groupBy('di.id, di.name');
     qb.orderBy('count', 'DESC');
     qb.limit(5);
+
+        if (!query.is_central && query.role_id === RoleIds.CLIENT) {
+      qb.innerJoin('ca.user_assignments', 'ua');
+      qb.andWhere('ua.user_id = :userId', { userId: query.user_id });
+      qb.andWhere('ua.state = :uaState', { uaState: BaseEntityState.ENABLED });
+    }
 
     if (query.consultation_type_id) {
       qb.andWhere('ad.consultation_type_id = :consultation_type_id', {

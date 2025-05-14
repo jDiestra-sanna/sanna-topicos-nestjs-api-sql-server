@@ -1,18 +1,28 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { PaginatedResult } from "src/common/interfaces/paginated-result.interface";
-import { MedicalConsultation } from "src/modules/medical-consultations/entities/medical-consultation.entity";
-import { Repository } from "typeorm";
-import { ReqQuery } from "./dto/req-query.dto";
-import { patientProfile } from "../patient-profile/entity/patient-profile.entity";
-import { castBooleansToYesNo } from "src/common/helpers/generic";
+import { InjectRepository } from '@nestjs/typeorm';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { MedicalConsultation } from 'src/modules/medical-consultations/entities/medical-consultation.entity';
+import { Repository } from 'typeorm';
+import { ReqQuery } from './dto/req-query.dto';
+import { patientProfile } from '../patient-profile/entity/patient-profile.entity';
+import { castBooleansToYesNo } from 'src/common/helpers/generic';
+import { UsersService } from '../users/users.service';
+import { UserAssignmentsService } from '../users/user-assignments.service';
+import { RoleIds } from '../roles/entities/role.entity';
 
 export class ReportsService {
-  constructor(@InjectRepository(MedicalConsultation) private medicalConsultationRepository: Repository<MedicalConsultation>) { }
+  constructor(
+    @InjectRepository(MedicalConsultation) private medicalConsultationRepository: Repository<MedicalConsultation>,
+    private usersService: UsersService,
+    private userAssignmentsService: UserAssignmentsService,
+  ) {}
 
   async findAllMedicalConsultations(req_query: ReqQuery): Promise<PaginatedResult<MedicalConsultation>> {
+    const user = await this.usersService.findOne(req_query.user_id);
+
     const skip = req_query.limit * req_query.page;
 
-    let qb = this.medicalConsultationRepository.createQueryBuilder('medcon')
+    let qb = this.medicalConsultationRepository
+      .createQueryBuilder('medcon')
       .select([
         'medcon.id',
         'medcon.attendance_date',
@@ -61,7 +71,7 @@ export class ReportsService {
         'secdiag.code',
         'secdiag.name',
         'pres.id',
-        'medi.name'
+        'medi.name',
       ])
       .leftJoin('medcon.campus', 'ca')
       .leftJoin('medcon.user', 'us')
@@ -86,14 +96,24 @@ export class ReportsService {
     if (req_query.date_from && req_query.date_to) {
       qb.andWhere('CAST(medcon.attendance_date AS DATE) BETWEEN :date_from AND :date_to', {
         date_from: req_query.date_from,
-        date_to: req_query.date_to
-      })
+        date_to: req_query.date_to,
+      });
+    }
+
+    let campusIds = [];
+    if (user.role_id === RoleIds.CLIENT) {
+      const assignedCampuses = await this.userAssignmentsService.findManyByUser(user.id);
+      campusIds = assignedCampuses.map(assignedCampus => assignedCampus.campus_id);
+    }
+
+    if (campusIds.length > 0) {
+      qb.andWhere('ca.id IN (:...campusIds)', { campusIds })
     }
 
     const total = await qb.getCount();
 
-    qb.skip(skip)
-    qb.take(req_query.limit)
+    qb.skip(skip);
+    qb.take(req_query.limit);
     qb.orderBy(req_query.order_col, req_query.order_dir);
 
     let items = await qb.getMany();
@@ -115,7 +135,10 @@ export class ReportsService {
   }
 
   async exportAllMedicalConsultations(req_query: ReqQuery): Promise<MedicalConsultation[]> {
-    let qb = this.medicalConsultationRepository.createQueryBuilder('medcon')
+    const user = await this.usersService.findOne(req_query.user_id);
+
+    let qb = this.medicalConsultationRepository
+      .createQueryBuilder('medcon')
       .select([
         'medcon.id',
         'medcon.attendance_date',
@@ -154,10 +177,10 @@ export class ReportsService {
         'secdiag.code',
         'secdiag.name',
         'pres.id',
-        'medi.name'
+        'medi.name',
       ])
-      .addSelect("CONVERT(VARCHAR(10), medcon.attendance_time)", 'medcon_attendance_time')
-      .addSelect("CASE WHEN pprof.id = 3 THEN pat.other_profile ELSE pprof.name END", 'pprof_name')
+      .addSelect('CONVERT(VARCHAR(10), medcon.attendance_time)', 'medcon_attendance_time')
+      .addSelect('CASE WHEN pprof.id = 3 THEN pat.other_profile ELSE pprof.name END', 'pprof_name')
       .addSelect("CASE WHEN pmedh.hypertension = 1 THEN 'SI' ELSE 'NO' END", 'pmedh_hypertension')
       .addSelect("CASE WHEN pmedh.asthma = 1 THEN 'SI' ELSE 'NO' END", 'pmedh_asthma')
       .addSelect("CASE WHEN pmedh.cancer = 1 THEN 'SI' ELSE 'NO' END", 'pmedh_cancer')
@@ -189,8 +212,19 @@ export class ReportsService {
     if (req_query.date_from && req_query.date_to) {
       qb.andWhere('CAST(medcon.attendance_date AS DATE) BETWEEN :date_from AND :date_to', {
         date_from: req_query.date_from,
-        date_to: req_query.date_to
-      })
+        date_to: req_query.date_to,
+      });
+    }
+
+    let campusIds = [];
+    if (user.role_id === RoleIds.CLIENT) {
+      const assignedCampuses = await this.userAssignmentsService.findManyByUser(user.id);
+      campusIds = assignedCampuses.map(assignedCampus => assignedCampus.campus_id);
+    }
+
+    console.log(campusIds)
+    if (campusIds.length > 0) {
+      qb.andWhere('ca.id IN (:...campusIds)', { campusIds })
     }
 
     let items = await qb.getRawMany();

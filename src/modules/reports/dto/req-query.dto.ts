@@ -26,4 +26,6 @@ export class ReqQuery extends BaseFindAllRequestQuery {
     @IsDateString()
     @ValidateIf(o => o.date_to)
     date_to: string;
+
+    user_id?: number
 }
