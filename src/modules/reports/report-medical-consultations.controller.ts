@@ -6,6 +6,7 @@ import { paginatedRspOk } from "src/common/helpers/http-responses";
 import ExcelJSService from "src/exceljs/exceljs.service";
 import { User } from "../users/entities/user.entity";
 import { AuthUser } from "src/common/decorators/auth-user.decorator";
+import { currentDateUnderscore } from "src/common/helpers/date";
 
 @Controller('report-medical-consultations')
 export class ReportMedicalConsultationsController {
@@ -72,8 +73,11 @@ export class ReportMedicalConsultationsController {
             )
             .setData(data)
             .writeBuffer()
+        
+        const date = currentDateUnderscore();
+        const filename = `reporte_de_consultas_${date}.xlsx`;
 
-        res.header('Content-Disposition', 'attachment; filename="reporte_usuarios.xlsx"');
+        res.header('Content-Disposition', `attachment; filename="${filename}"`);
         res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
         return res.send(buffer)
