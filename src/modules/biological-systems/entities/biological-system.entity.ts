@@ -13,6 +13,8 @@ export enum biologicalSystem {
   EXCRETORY_SYSTEM = 8,
   OSSEOUS_SYSTEM = 9,
   LYMPHATIC_SYSTEM = 10,
+  DIGESTIVE_SYSTEM = 11,
+  CIRCULATORY_SYSTEM = 12,
 }
 
 @Entity({ name: 'biological_systems' })
